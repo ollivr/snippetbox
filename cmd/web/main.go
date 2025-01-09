@@ -42,8 +42,7 @@ func main() {
 
 	logger.Info("starting server", slog.String("addr", *addr))
 
-	err := http.ListenAndServe(*addr, app.routes())
-
+	err = http.ListenAndServe(*addr, app.routes())
 	logger.Error(err.Error())
 	os.Exit(1)
 }
