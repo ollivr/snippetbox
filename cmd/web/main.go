@@ -5,14 +5,16 @@ import (
 	"flag"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/ollivr/snippetbox/internal/models"
+	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
 )
 
 type application struct {
-	logger   *slog.Logger
-	snippets *models.SnippetModel
+	logger        *slog.Logger
+	snippets      *models.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -38,12 +40,19 @@ func main() {
 
 	defer db.Close()
 
-	app := &application{
-		logger:   logger,
-		snippets: &models.SnippetModel{DB: db},
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
-	logger.Info("starting server", slog.String("addr", *addr))
+	app := &application{
+		logger:        logger,
+		snippets:      &models.SnippetModel{DB: db},
+		templateCache: templateCache,
+	}
+
+	logger.Info("starting server", "addr", *addr)
 
 	err = http.ListenAndServe(*addr, app.routes())
 	logger.Error(err.Error())
