@@ -9,6 +9,7 @@ import (
 func main() {
 
 	/* -help flag will display all flags */
+
 	addr := flag.String("addr", ":8080", "HTTP network address")
 	flag.Parse()
 
