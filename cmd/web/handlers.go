@@ -6,6 +6,8 @@ import (
 	"github.com/ollivr/snippetbox/internal/models"
 	"net/http"
 	"strconv"
+	"strings"
+	"unicode/utf8"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -68,6 +70,26 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	fieldErrors := make(map[string]string)
+
+	if strings.TrimSpace(title) == "" {
+		fieldErrors["title"] = "Title is required"
+	} else if utf8.RuneCountInString(title) > 100 {
+		fieldErrors["title"] = "Title must be 100 characters or less"
+	}
+
+	if strings.TrimSpace(content) == "" {
+		fieldErrors["content"] = "Content is required"
+	}
+
+	if expires != 1 && expires != 7 && expires != 365 {
+		fieldErrors["expires"] = "Expires must be 1, 7 or 365 days"
+	}
+
+	if len(fieldErrors) > 0 {
+		fmt.Fprint(w, fieldErrors)
+		return
+	}
 	id, err := app.snippets.Insert(title, content, expires)
 	if err != nil {
 		app.serverError(w, r, err)
