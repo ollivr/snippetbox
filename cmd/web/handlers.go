@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ollivr/snippetbox/internal/models"
+	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -57,7 +58,24 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	fmt.Fprintf(w, "%+v", snippet)
+
+	files := []string{
+		"./ui/html/base.tmpl",
+		"./ui/html/partials/nav.tmpl.html",
+		"./ui/html/pages/view.tmpl.html",
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, r, err)
+
+	}
+
+	err = ts.ExecuteTemplate(w, "base", snippet)
+	if err != nil {
+		app.serverError(w, r, err)
+	}
+
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
