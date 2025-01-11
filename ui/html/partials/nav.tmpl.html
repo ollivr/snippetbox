@@ -1,19 +1,24 @@
 {{define "nav"}}
 
-    <nav>
-        <div>
+<nav>
+    <div>
         <a href="/">Home</a>
+        {{if .IsAuthenticated}}
         <a href="/snippet/create">Create Snippet</a>
-        </div>
-        <div>
-            <a href="/user/signup">Signup</a>
-            <a href="/user/login">Login</a>
-            <form action='/user/logout' method='POST'>
-                <button>Logout</button>
-            </form>
-        </div>
-        {{block "sidebar" .}}
-
         {{end}}
-    </nav>
+    </div>
+    <div>
+        {{if .IsAuthenticated}}
+        <form action='/user/logout' method='POST'>
+            <button>Logout</button>
+        </form>
+        {{else}}
+        <a href="/user/signup">Signup</a>
+        <a href="/user/login">Login</a>
+        {{end}}
+    </div>
+    {{block "sidebar" .}}
+
+    {{end}}
+</nav>
 {{end}}
